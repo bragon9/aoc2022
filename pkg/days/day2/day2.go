@@ -52,21 +52,6 @@ var ScissorsOutcomes = map[Move]Outcome{
 	Scissors: Draw,
 }
 
-func getScore(myMove Move, enemyMove Move) int {
-	var outcome Outcome
-
-	switch myMove {
-	case Rock:
-		outcome = RockOutcomes[enemyMove]
-	case Paper:
-		outcome = PaperOutcomes[enemyMove]
-	case Scissors:
-		outcome = ScissorsOutcomes[enemyMove]
-	}
-
-	return int(myMove) + int(outcome)
-}
-
 func Part1() (int, error) {
 	lines, err := inputreader.ReadLines("inputs/day2/1.txt")
 	if err != nil {
@@ -79,7 +64,62 @@ func Part1() (int, error) {
 		enemyMove := enemyMoveMap[fields[0]]
 		myMove := myMoveMap[fields[1]]
 
-		score += getScore(myMove, enemyMove)
+		var outcome Outcome
+		switch myMove {
+		case Rock:
+			outcome = RockOutcomes[enemyMove]
+		case Paper:
+			outcome = PaperOutcomes[enemyMove]
+		case Scissors:
+			outcome = ScissorsOutcomes[enemyMove]
+		}
+		score += int(myMove) + int(outcome)
+	}
+
+	return score, nil
+}
+
+var outcomeMap = map[string]Outcome{
+	"X": Loss,
+	"Y": Draw,
+	"Z": Win,
+}
+
+var moveToWinMap = map[Move]Move{
+	Rock:     Paper,
+	Paper:    Scissors,
+	Scissors: Rock,
+}
+
+var moveToLoseMap = map[Move]Move{
+	Rock:     Scissors,
+	Paper:    Rock,
+	Scissors: Paper,
+}
+
+func Part2() (int, error) {
+	lines, err := inputreader.ReadLines("inputs/day2/1.txt")
+	if err != nil {
+		return 0, err
+	}
+
+	score := 0
+	for _, line := range lines {
+		fields := strings.Fields(line)
+		enemyMove := enemyMoveMap[fields[0]]
+		outcome := outcomeMap[fields[1]]
+
+		var myMove Move
+		switch outcome {
+		case Loss:
+			myMove = moveToLoseMap[enemyMove]
+		case Win:
+			myMove = moveToWinMap[enemyMove]
+		case Draw:
+			myMove = enemyMove
+		}
+
+		score += int(outcome) + int(myMove)
 	}
 
 	return score, nil

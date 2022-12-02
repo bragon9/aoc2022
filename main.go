@@ -29,17 +29,17 @@ func getDay1() (Answer, error) {
 }
 
 func getDay2() (Answer, error) {
-	answer := Answer{}
+	var answer Answer
 	ans1, err := day2.Part1()
 	if err != nil {
 		return Answer{}, err
 	}
 	answer.Part1 = ans1
-	// ans2, err := day1.Part2()
-	// if err != nil {
-	// 	return Answer{}, err
-	// }
-	// answer.Part2 = ans2
+	ans2, err := day2.Part2()
+	if err != nil {
+		return Answer{}, err
+	}
+	answer.Part2 = ans2
 
 	return answer, nil
 }
