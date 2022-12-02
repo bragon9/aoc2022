@@ -5,51 +5,65 @@ import (
 	"strings"
 )
 
-type Move int
+type move int
 
 const (
-	_ Move = iota
+	_ move = iota
 	Rock
 	Paper
 	Scissors
 )
 
-type Outcome int
+type outcome int
 
 const (
-	Loss Outcome = 0
-	Draw Outcome = 3
-	Win  Outcome = 6
+	Loss outcome = 0
+	Draw outcome = 3
+	Win  outcome = 6
 )
 
-var enemyMoveMap = map[string]Move{
+var enemyMoveMap = map[string]move{
 	"A": Rock,
 	"B": Paper,
 	"C": Scissors,
 }
 
-var myMoveMap = map[string]Move{
+var myMoveMap = map[string]move{
 	"X": Rock,
 	"Y": Paper,
 	"Z": Scissors,
 }
 
-var RockOutcomes = map[Move]Outcome{
+var rockOutcomes = map[move]outcome{
 	Rock:     Draw,
 	Paper:    Loss,
 	Scissors: Win,
 }
 
-var PaperOutcomes = map[Move]Outcome{
+var paperOutcomes = map[move]outcome{
 	Rock:     Win,
 	Paper:    Draw,
 	Scissors: Loss,
 }
 
-var ScissorsOutcomes = map[Move]Outcome{
+var scissorsOutcomes = map[move]outcome{
 	Rock:     Loss,
 	Paper:    Win,
 	Scissors: Draw,
+}
+
+func getOutcome(enemyMove move, myMove move) outcome {
+	var outcome outcome
+	switch myMove {
+	case Rock:
+		outcome = rockOutcomes[enemyMove]
+	case Paper:
+		outcome = paperOutcomes[enemyMove]
+	case Scissors:
+		outcome = scissorsOutcomes[enemyMove]
+	}
+
+	return outcome
 }
 
 func Part1() (int, error) {
@@ -64,37 +78,44 @@ func Part1() (int, error) {
 		enemyMove := enemyMoveMap[fields[0]]
 		myMove := myMoveMap[fields[1]]
 
-		var outcome Outcome
-		switch myMove {
-		case Rock:
-			outcome = RockOutcomes[enemyMove]
-		case Paper:
-			outcome = PaperOutcomes[enemyMove]
-		case Scissors:
-			outcome = ScissorsOutcomes[enemyMove]
-		}
+		outcome := getOutcome(enemyMove, myMove)
+
 		score += int(myMove) + int(outcome)
 	}
 
 	return score, nil
 }
 
-var outcomeMap = map[string]Outcome{
+var outcomeMap = map[string]outcome{
 	"X": Loss,
 	"Y": Draw,
 	"Z": Win,
 }
 
-var moveToWinMap = map[Move]Move{
+var moveToWinMap = map[move]move{
 	Rock:     Paper,
 	Paper:    Scissors,
 	Scissors: Rock,
 }
 
-var moveToLoseMap = map[Move]Move{
+var moveToLoseMap = map[move]move{
 	Rock:     Scissors,
 	Paper:    Rock,
 	Scissors: Paper,
+}
+
+func chooseMove(enemyMove move, outcome outcome) move {
+	var myMove move
+	switch outcome {
+	case Loss:
+		myMove = moveToLoseMap[enemyMove]
+	case Win:
+		myMove = moveToWinMap[enemyMove]
+	case Draw:
+		myMove = enemyMove
+	}
+
+	return myMove
 }
 
 func Part2() (int, error) {
@@ -109,15 +130,7 @@ func Part2() (int, error) {
 		enemyMove := enemyMoveMap[fields[0]]
 		outcome := outcomeMap[fields[1]]
 
-		var myMove Move
-		switch outcome {
-		case Loss:
-			myMove = moveToLoseMap[enemyMove]
-		case Win:
-			myMove = moveToWinMap[enemyMove]
-		case Draw:
-			myMove = enemyMove
-		}
+		myMove := chooseMove(enemyMove, outcome)
 
 		score += int(outcome) + int(myMove)
 	}
