@@ -1,26 +1,20 @@
 package day1
 
 import (
-	"bufio"
+	"aoc2022/pkg/inputreader"
 	"container/heap"
-	"fmt"
-	"os"
 	"strconv"
 )
 
 func Part1() (int, error) {
-	input := "./inputs/day1/1.txt"
-	file, err := os.Open(input)
+	lines, err := inputreader.ReadLines("./inputs/day1/1.txt")
 	if err != nil {
-		return 0, fmt.Errorf("unable to open file %v", input)
+		return 0, err
 	}
-	defer file.Close()
 
 	max := 0
 	total := 0
-	scanner := bufio.NewScanner(file)
-	for scanner.Scan() {
-		line := scanner.Text()
+	for _, line := range lines {
 		if len(line) == 0 {
 			total = 0
 			continue
@@ -35,10 +29,6 @@ func Part1() (int, error) {
 		if total > max {
 			max = total
 		}
-	}
-
-	if err := scanner.Err(); err != nil {
-		return 0, err
 	}
 
 	return max, nil
@@ -66,19 +56,15 @@ func (h *IntHeap) Pop() any {
 }
 
 func Part2() (int, error) {
-	input := "./inputs/day1/1.txt"
-	file, err := os.Open(input)
+	lines, err := inputreader.ReadLines("./inputs/day1/1.txt")
 	if err != nil {
-		return 0, fmt.Errorf("unable to open file %v", input)
+		return 0, err
 	}
-	defer file.Close()
 
 	minHeap := IntHeap{}
 	heap.Init(&minHeap)
 	total := 0
-	scanner := bufio.NewScanner(file)
-	for scanner.Scan() {
-		line := scanner.Text()
+	for _, line := range lines {
 		if len(line) == 0 {
 			total = 0
 			continue
@@ -101,10 +87,6 @@ func Part2() (int, error) {
 			heap.Push(&minHeap, total)
 		}
 
-	}
-
-	if err := scanner.Err(); err != nil {
-		return 0, err
 	}
 
 	sum := func() int {
