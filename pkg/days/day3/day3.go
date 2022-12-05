@@ -2,6 +2,7 @@ package day3
 
 import (
 	"aoc2022/pkg/inputreader"
+	"fmt"
 )
 
 func splitLine(line string) (string, string) {
@@ -61,7 +62,46 @@ func Part1() (int, error) {
 	return total, nil
 }
 
-func Part2() (int, error) {
+func scoreGroup(arr []string) (int, error) {
+	scoreMap := makeScoreMap()
+	intersection := makeSet(arr[0])
+	for _, line := range arr[1:3] {
+		lineSet := makeSet(line)
+		for r := range intersection {
+			if _, found := lineSet[r]; !found {
+				delete(intersection, r)
+			}
+		}
+	}
 
-	return 0, nil
+	if len(intersection) > 1 {
+		return 0, fmt.Errorf("multiple items shared \n%v", intersection)
+	}
+
+	var ans rune
+	for r := range intersection {
+		ans = r
+	}
+
+	return scoreMap[ans], nil
+}
+
+func Part2() (int, error) {
+	lines, err := inputreader.ReadLines("inputs/day3/2.txt")
+	if err != nil {
+		return 0, err
+	}
+
+	total := 0
+	for ptr := 0; ptr < len(lines)-2; {
+		score, err := scoreGroup(lines[ptr : ptr+3])
+		if err != nil {
+			return 0, err
+		}
+
+		total += score
+		ptr += 3
+	}
+
+	return total, nil
 }
