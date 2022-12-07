@@ -69,11 +69,11 @@ func getDay4() (Answer, error) {
 		return Answer{}, err
 	}
 	answer.Part1 = ans1
-	// ans2, err := day4.Part2()
-	// if err != nil {
-	// 	return Answer{}, err
-	// }
-	// answer.Part2 = ans2
+	ans2, err := day4.Part2()
+	if err != nil {
+		return Answer{}, err
+	}
+	answer.Part2 = ans2
 
 	return answer, nil
 }
