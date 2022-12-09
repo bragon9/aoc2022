@@ -7,6 +7,7 @@ import (
 	"aoc2022/pkg/days/day4"
 	"aoc2022/pkg/days/day5"
 	"aoc2022/pkg/days/day6"
+	"aoc2022/pkg/days/day7"
 	"fmt"
 	"log"
 )
@@ -112,6 +113,22 @@ func getDay6() (Answer, error) {
 	return answer, nil
 }
 
+func getDay7() (Answer, error) {
+	var answer Answer
+	ans1, err := day7.Part1()
+	if err != nil {
+		return Answer{}, err
+	}
+	answer.Part1 = ans1
+	ans2, err := day7.Part2()
+	if err != nil {
+		return Answer{}, err
+	}
+	answer.Part2 = ans2
+
+	return answer, nil
+}
+
 func main() {
 	// Day1, err := getDay1()
 	// if err != nil {
@@ -143,9 +160,15 @@ func main() {
 	// }
 	// fmt.Printf("Day5: \n%+v", Day5)
 
-	Day6, err := getDay6()
+	// Day6, err := getDay6()
+	// if err != nil {
+	// 	log.Fatal(err)
+	// }
+	// fmt.Printf("Day6: \n%+v", Day6)
+
+	Day7, err := getDay7()
 	if err != nil {
 		log.Fatal(err)
 	}
-	fmt.Printf("Day6: \n%+v", Day6)
+	fmt.Printf("Day7: \n%+v", Day7)
 }
