@@ -2,6 +2,7 @@ package day5
 
 import (
 	"aoc2022/pkg/inputreader"
+	"fmt"
 	"strconv"
 	"strings"
 	"unicode"
@@ -12,6 +13,13 @@ type move struct {
 	From   int
 	To     int
 }
+
+type craneType int
+
+const (
+	ninek craneType = iota
+	ninek1
+)
 
 func getStartingStacks(lines []string) [9][]byte {
 	var stacks [9][]byte
@@ -52,15 +60,24 @@ func getMoves(lines []string) ([]move, error) {
 	return moves, nil
 }
 
-func makeMove(stacks *[9][]byte, move move) error {
+func makeMove(stacks *[9][]byte, move move, ct craneType) error {
 	fromStack := stacks[move.From]
 	toStack := stacks[move.To]
 	amt := move.Amount
 
 	sectionToMove := fromStack[len(fromStack)-amt:]
 	fromStack = fromStack[:len(fromStack)-amt]
-	for i := 0; i < amt; i++ {
-		toStack = append(toStack, sectionToMove[len(sectionToMove)-i-1])
+
+	fmt.Println(ct)
+	switch ct {
+	case ninek:
+		for i := 0; i < amt; i++ {
+			toStack = append(toStack, sectionToMove[len(sectionToMove)-i-1])
+		}
+	case ninek1:
+		toStack = append(toStack, sectionToMove...)
+	default:
+		return fmt.Errorf("unrecognized cranetype %v", ct)
 	}
 
 	stacks[move.From] = fromStack
@@ -101,7 +118,44 @@ func Part1() (string, error) {
 	}
 
 	for _, currMove := range moves {
-		makeMove(&stacks, currMove)
+		makeMove(&stacks, currMove, ninek)
+		if err != nil {
+			return "", err
+		}
+	}
+
+	ans := getAnswer(stacks)
+
+	return ans, nil
+}
+
+func Part2() (string, error) {
+	lines, err := inputreader.ReadLines("inputs/day5/1.txt")
+	if err != nil {
+		return "", err
+	}
+
+	inputSep := 0
+	for i, line := range lines {
+		{
+			if line == "" {
+				inputSep = i
+				break
+			}
+		}
+	}
+
+	stacks := getStartingStacks(lines[:inputSep])
+	moves, err := getMoves(lines[inputSep+1:])
+	if err != nil {
+		return "", err
+	}
+
+	for _, currMove := range moves {
+		err := makeMove(&stacks, currMove, ninek)
+		if err != nil {
+			return "", err
+		}
 	}
 
 	ans := getAnswer(stacks)
