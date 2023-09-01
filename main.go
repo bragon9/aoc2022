@@ -12,6 +12,7 @@ import (
 	"aoc2022/pkg/days/day6"
 	"aoc2022/pkg/days/day7"
 	"aoc2022/pkg/days/day8"
+	"aoc2022/pkg/days/day9"
 )
 
 type Answer struct {
@@ -147,6 +148,22 @@ func getDay8() (Answer, error) {
 	return answer, nil
 }
 
+func getDay9() (Answer, error) {
+	var answer Answer
+	ans1, err := day9.Part1()
+	if err != nil {
+		return Answer{}, err
+	}
+	answer.Part1 = ans1
+	ans2, err := day9.Part2()
+	if err != nil {
+		return Answer{}, err
+	}
+	answer.Part2 = ans2
+
+	return answer, nil
+}
+
 func main() {
 	// Day1, err := getDay1()
 	// if err != nil {
@@ -190,9 +207,15 @@ func main() {
 	// }
 	// fmt.Printf("Day7: \n%+v", Day7)
 
-	Day8, err := getDay8()
+	// Day8, err := getDay8()
+	// if err != nil {
+	// 	log.Fatal(err)
+	// }
+	// fmt.Printf("Day8: \n%+v", Day8)
+
+	Day9, err := getDay9()
 	if err != nil {
 		log.Fatal(err)
 	}
-	fmt.Printf("Day8: \n%+v", Day8)
+	fmt.Printf("Day9: \n%+v", Day9)
 }
