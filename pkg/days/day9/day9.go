@@ -8,30 +8,44 @@ import (
 	"strings"
 )
 
+// Linked list constructed of `*RopePiece`
 type Rope struct {
-	Pieces      []*RopePiece
-	TailHistory map[string]struct{}
+	Head   *RopePiece
+	Tail   *RopePiece
+	Length int
 }
 
+// Representation of a "node"
 type RopePiece struct {
-	X int
-	Y int
+	Number  int
+	X       int
+	Y       int
+	Next    *RopePiece
+	History map[string]struct{}
 }
 
 // Make a rope of given size
 func MakeRope(l int) *Rope {
-	var pieces []*RopePiece
-
-	for i := 0; i < l; i++ {
-		pieces = append(pieces, &RopePiece{})
+	head := &RopePiece{}
+	next := head
+	var tail *RopePiece
+	for i := 0; i < l-1; i++ {
+		next.Number = i
+		next.Next = &RopePiece{}
+		next = next.Next
+		tail = next
 	}
+	tail.Number = l - 1
+	tail.History = map[string]struct{}{"0,0": {}}
 	return &Rope{
-		Pieces:      pieces,
-		TailHistory: map[string]struct{}{"0,0": {}},
+		Head:   head,
+		Tail:   tail,
+		Length: l,
 	}
 }
 
-func getDelta(dir string) (int, int) {
+// Return the amount to increment X and Y from the given direction
+func getDeltaFromDirection(dir string) (int, int) {
 	switch dir {
 	case "U":
 		return 0, 1
@@ -46,39 +60,23 @@ func getDelta(dir string) (int, int) {
 	return 0, 0
 }
 
-// Move the head and track all locations the tail reaches
-func (r *Rope) Move(dir string, amt int) error {
-	xChange, yChange := getDelta(dir)
-	for i := 0; i < amt; i++ {
-		// Loop through and move all pieces except for the last
-		for j := 0; j < len(r.Pieces)-1; j++ {
-			curr := r.Pieces[j]
-			next := r.Pieces[j+1]
-
-			// Save off values, we will move next piece to here potentially
-			currX := curr.X
-			currY := curr.Y
-
-			curr.X = curr.X + xChange
-			curr.Y = curr.Y + yChange
-
-			// Update next piece if it is further than 1 space away
-			if math.Abs(float64(curr.X)-float64(next.X)) > 1 ||
-				math.Abs(float64(curr.Y)-float64(next.Y)) > 1 {
-				next.X = currX
-				next.Y = currY
-			}
-
-			// If tail was just moved, update history
-			if j == len(r.Pieces)-2 {
-				r.TailHistory[fmt.Sprintf("%v,%v", next.X, next.Y)] = struct{}{}
-			}
-
-		}
-
+func getDeltaForNext(rp *RopePiece) (int, int) {
+	var xChange int
+	var yChange int
+	switch {
+	case rp.X > rp.Next.X:
+		xChange = 1
+	case rp.X < rp.Next.X:
+		xChange = -1
+	}
+	switch {
+	case rp.Y > rp.Next.Y:
+		yChange = 1
+	case rp.Y < rp.Next.Y:
+		yChange = -1
 	}
 
-	return nil
+	return xChange, yChange
 }
 
 // Process all moves and return how many unique positions were visited by the tail
@@ -97,7 +95,37 @@ func (r *Rope) ProcessMoves(lines []string) (int, error) {
 		}
 	}
 
-	return len(r.TailHistory), nil
+	return len(r.Tail.History), nil
+}
+
+// Handles moving the Head as directed in the input
+func (r *Rope) Move(dir string, amt int) error {
+	xChange, yChange := getDeltaFromDirection(dir)
+	for i := 0; i < amt; i++ {
+		r.Head.move(xChange, yChange)
+	}
+	return nil
+}
+
+// Move a piece of the rope
+func (rp *RopePiece) move(xChange, yChange int) error {
+	// Move the piece
+	rp.X = rp.X + xChange
+	rp.Y = rp.Y + yChange
+
+	// See if the next section needs to move
+	if rp.Next != nil {
+		// Recursively move the rest of the rope, if necessary
+		if math.Abs(float64(rp.X)-float64(rp.Next.X)) > 1 ||
+			math.Abs(float64(rp.Y)-float64(rp.Next.Y)) > 1 {
+			rp.Next.move(getDeltaForNext(rp))
+		}
+	} else {
+		// Last piece -- update the tail history
+		rp.History[fmt.Sprintf("%v,%v", rp.X, rp.Y)] = struct{}{}
+	}
+
+	return nil
 }
 
 func Part1() (any, error) {
@@ -116,6 +144,16 @@ func Part1() (any, error) {
 }
 
 func Part2() (any, error) {
+	lines, err := inputreader.ReadLines("inputs/day9/1.txt")
+	if err != nil {
+		return 0, err
+	}
 
-	return 0, nil
+	r := MakeRope(10)
+	ans, err := r.ProcessMoves(lines)
+	if err != nil {
+		return nil, err
+	}
+
+	return ans, nil
 }
