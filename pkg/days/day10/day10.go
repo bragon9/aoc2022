@@ -2,6 +2,8 @@ package day10
 
 import (
 	"aoc2022/pkg/inputreader"
+	"fmt"
+	"math"
 	"strconv"
 	"strings"
 )
@@ -15,6 +17,24 @@ type CRT struct {
 	Cycle        int
 	Value        int
 	SignalChecks map[int]int
+	Screen       [][]string
+}
+
+func (crt *CRT) PrintScreen() {
+	for _, line := range crt.Screen {
+		fmt.Println(line)
+	}
+}
+
+func (crt *CRT) DrawPixel() {
+	if crt.Screen == nil {
+		return
+	}
+	pixel := (crt.Cycle - 1) % 40
+	screen := crt.Cycle / 40
+	if math.Abs(float64(crt.Value)-float64(pixel)) <= 1 {
+		crt.Screen[screen][pixel] = "#"
+	}
 }
 
 func (crt *CRT) NextCycle() {
@@ -22,6 +42,7 @@ func (crt *CRT) NextCycle() {
 	if _, ok := crt.SignalChecks[crt.Cycle]; ok {
 		crt.SignalChecks[crt.Cycle] = crt.Value
 	}
+	crt.DrawPixel()
 }
 
 func (crt *CRT) AddOp(i int) {
@@ -90,10 +111,32 @@ func Part1() (any, error) {
 }
 
 func Part2() (any, error) {
-	// lines, err := inputreader.ReadLines("inputs/day10/1.txt")
-	// if err != nil {
-	// 	return 0, err
-	// }
+	lines, err := inputreader.ReadLines("inputs/day10/1.txt")
+	if err != nil {
+		return 0, err
+	}
+
+	crt := &CRT{
+		Cycle: 0,
+		Value: 1,
+		Screen: [][]string{
+			{".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", "."},
+			{".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", "."},
+			{".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", "."},
+			{".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", "."},
+			{".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", "."},
+			{".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", "."},
+		},
+	}
+
+	for _, line := range lines {
+		err := crt.ProcessLine(line)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	crt.PrintScreen()
 
 	return nil, nil
 }
